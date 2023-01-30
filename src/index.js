@@ -99,9 +99,36 @@ app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
   response.json({ deadline, done: false, title });
 });
 
-app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-});
+app.patch(
+  "/todos/:id/done",
+  checksExistsUserAccount,
+  async (request, response) => {
+    const { id } = request.params;
+    const { username } = request.headers;
+
+    let doneOk;
+    const doneTodo = users.map((user) => {
+      if (username === user.username) {
+        user.todos.map((todo) => {
+          const todoExists = user.todos.find((todo) => todo.id === id);
+          if (!todoExists) {
+            return response.status(404).json({ error: "Todo not exists" });
+          }
+          if (todoExists.id === id) {
+            todo.done = true;
+            doneOk = todo;
+          }
+        });
+      }
+
+      return user;
+    });
+
+    users = doneTodo;
+
+    response.json(doneOk);
+  }
+);
 
 app.delete("/todos/:id", checksExistsUserAccount, (request, response) => {
   // Complete aqui
