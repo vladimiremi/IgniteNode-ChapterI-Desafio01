@@ -107,10 +107,12 @@ app.patch(
     const { username } = request.headers;
 
     let doneOk;
+    let todoExists;
     const doneTodo = users.map((user) => {
       if (username === user.username) {
         user.todos.map((todo) => {
-          const todoExists = user.todos.find((todo) => todo.id === id);
+          todoExists = user.todos.find((todo) => todo.id === id);
+
           if (!todoExists) {
             return response.status(404).json({ error: "Todo not exists" });
           }
@@ -126,7 +128,11 @@ app.patch(
 
     users = doneTodo;
 
-    response.json(doneOk);
+    if (!todoExists) {
+      response.status(404).json({ error: "Todo not exists" });
+    }
+
+    return response.json(doneOk);
   }
 );
 
