@@ -131,7 +131,23 @@ app.patch(
 );
 
 app.delete("/todos/:id", checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { id } = request.params;
+  const { username } = request.headers;
+  users.map((user) => {
+    if (username === user.username) {
+      const todoExists = user.todos.find((todo) => todo.id === id);
+      if (!todoExists) {
+        response.status(404).json({ error: "Todo not exists" });
+      }
+
+      const removeTodo = user.todos.filter((todo) => todo.id !== todoExists.id);
+
+      user.todos = removeTodo;
+    }
+    return user;
+  });
+
+  return response.status(204).send();
 });
 
 module.exports = app;
